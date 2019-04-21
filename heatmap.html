@@ -1,0 +1,22 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title>Heatmap Demo</title>
+    <link rel="stylesheet" href="style.css">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/d3/4.5.0/d3.js"></script>
+    <script src="circos.min.js"></script>
+    <script src="heatmap.js"></script>
+    <script src="data.js"></script>
+</head>
+<body>
+    <div id="heatmapContainer"></div>
+
+    <script>
+        var data = getData();
+        renderChart('#heatmapContainer', 600, 600, months, data);
+    </script>
+</body>
+</html>
