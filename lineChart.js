@@ -36,13 +36,9 @@ function renderChart(containerSelector, width, height, months, data) {
             return prev;
         }, {});
 
-        var previousColor = undefined;
         for (var id in segmentGroups) {
             var segments = segmentGroups[id];
-            var averageValue = segments.reduce(function(sum, entry) { return sum + entry.value || 0 }, null) / segments.length;
-            var color = getColor(averageValue, data.minValue, data.maxValue);
-            var gradientUrl = appendGradient(defs, previousColor, color, 'gradient' + id + dataEntry.year);
-            previousColor = color;
+            var gradientUrl = appendGradient(defs, 'gradient' + id + dataEntry.year, segments, data.minValue, data.maxValue, true);
 
             circosHeatmap.line('line' + segments[0].block_id + dataEntry.year, segments, {
                 min: data.minValue,
@@ -57,7 +53,7 @@ function renderChart(containerSelector, width, height, months, data) {
                     {
                       start: 0,
                       color: gradientUrl,
-                      opacity: 0.2
+                      opacity: 0.3
                     }
                   ]
             });
@@ -85,29 +81,35 @@ function renderChart(containerSelector, width, height, months, data) {
     circosHeatmap.render();
 }
 
-function appendGradient(defs, previousColor, currentColor, id) {
-    if (previousColor === undefined) {
-        previousColor = currentColor;
+function appendGradient(defs, id, segments, minValue, maxValue, scale) {
+    var startValue = segments[0].value;
+    var endValue = segments[segments.length - 1].value;
+    if (scale) {
+        startValue = d3.scaleLog(Math.E)(startValue);
+        endValue = d3.scaleLog(Math.E)(endValue);
+        maxValue = d3.scaleLog(Math.E)(maxValue);
+        minValue = d3.scaleLog(Math.E)(minValue);
     }
+
+    var startColor = getColor(startValue, minValue, maxValue);
+    var endColor = getColor(endValue, minValue, maxValue);
 
     var gradient = defs.append('linearGradient')
         .attr('id', id)
         .attr('x1', '0%')
+        .attr('y1', '41%')
         .attr('x2', '100%')
-        .attr('y1', '0%')
-        .attr('x2', '100%');
+        .attr('y2', '59%');
 
     gradient.append('stop')
         .attr('class', 'start')
         .attr('offset', '0%')
-        .attr('stop-color', previousColor)
-        .attr('stop-opacity', 1);
+        .attr('stop-color', startColor);
 
     gradient.append('stop')
         .attr('class', 'end')
         .attr('offset', '100%')
-        .attr('stop-color', currentColor)
-        .attr('stop-opacity', 1);
+        .attr('stop-color', endColor);
 
     return 'url(#' + id + ')';
 }
